@@ -1,8 +1,11 @@
 
+#ifndef LEXER_H
+#define LEXER_H
+
 #include <string> // c_str
 #include <cctype> // isspace, isdigit, isalpha, isascii
 #include <cstdlib> // strtod
-#include <cstdio> // EOF
+#include <cstdio> // EOF, fgetc
 #include <iostream> // cerr
 #include <stdio.h> // FILE
 
@@ -34,20 +37,21 @@ static double NumVal;
 
 static FILE *file;
 
-int getchar() {
-  return fgetc(file);
-}
+int getchar(FILE *file);
 
 static int getToken(FILE *file) {
   static int LastChar = ' ';
-
+// std::cout << "0" << " " << bool(isspace(LastChar)) << std::endl;
   // Skip any whitespace.
-  while (isspace(LastChar))
-    LastChar = getchar();
-
+  while (isspace(LastChar)) {
+    // std::cout << "#" << static_cast<char>(LastChar) << "#" << std::endl;
+    LastChar = getchar(file);
+    // std::cout << "$" << static_cast<char>(LastChar) << "$" << std::endl;
+  }
+// std::cout << "1" << std::endl;
   if (isalpha(LastChar)) { // identifier: [a-zA-Z][a-zA-Z0-9]*
     IdentifierStr = LastChar;
-    while (isalnum((LastChar = getchar())))
+    while (isalnum((LastChar = getchar(file))))
       IdentifierStr += LastChar;
 
     if (IdentifierStr == "def")
@@ -56,35 +60,37 @@ static int getToken(FILE *file) {
       return tok_extern;
     return tok_identifier;
   }
-
+// std::cout << "2" << std::endl;
   if (isdigit(LastChar) || LastChar == '.') { // Number: [0-9.]+
     std::string NumStr;
     do {
       NumStr += LastChar;
-      LastChar = getchar();
+      LastChar = getchar(file);
     } while (isdigit(LastChar) || LastChar == '.');
 
     NumVal = strtod(NumStr.c_str(), nullptr);
     return tok_number;
   }
-
+// std::cout << "3" << std::endl;
   if (LastChar == '#') {
     // Comment until end of line.
     do
-      LastChar = getchar();
+      LastChar = getchar(file);
     while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
     if (LastChar != EOF)
       return getToken(file);
   }
-
+// std::cout << "4" << std::endl;
   // Check for end of file.  Don't eat the EOF.
   if (LastChar == EOF)
     return tok_eof;
-
+// std::cout << "5" << std::endl;
   // Otherwise, just return the character as its ascii value.
   int ThisChar = LastChar;
-  LastChar = getchar();
+  LastChar = getchar(file);
   return ThisChar;
 }
 }; // namespace Lexer
+
+#endif // #define LEXER_H

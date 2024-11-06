@@ -1,3 +1,5 @@
+#ifndef PARSER_H
+#define PARSER_H
 
 #include "Lexer.h"
 #include "AST.h"
@@ -22,14 +24,8 @@ static int getNextToken() { return CurTok = Lexer::getToken(Lexer::file); }
 /// defined.
 static std::map<char, int> BinopPrecedence;
 
-void initBinopPrecedence() {
-  // Install standard binary operators.
-  // 1 is lowest precedence.
-  BinopPrecedence['<'] = 10;
-  BinopPrecedence['+'] = 20;
-  BinopPrecedence['-'] = 20;
-  BinopPrecedence['*'] = 40; // highest.
-}
+/// Install standard binary operators.
+void initBinopPrecedence();
 
 /// GetTokPrecedence - Get the precedence of the pending binary operator token.
 static int GetTokPrecedence() {
@@ -44,15 +40,8 @@ static int GetTokPrecedence() {
 }
 
 /// LogError* - These are little helper functions for error handling.
-std::unique_ptr<AST::ExprAST> LogError(const char *Str) {
-  fprintf(stderr, "Error: %s\n", Str);
-  exit(1);
-  return nullptr;
-}
-std::unique_ptr<AST::PrototypeAST> LogErrorP(const char *Str) {
-  LogError(Str);
-  return nullptr;
-}
+std::unique_ptr<AST::ExprAST> LogError(const char *Str);
+std::unique_ptr<AST::PrototypeAST> LogErrorP(const char *Str);
 
 static std::unique_ptr<AST::ExprAST> ParseExpression();
 
@@ -235,3 +224,5 @@ static std::unique_ptr<AST::PrototypeAST> ParseExtern() {
 }
 
 } // namespace Parser
+
+#endif // #define PARSER_H

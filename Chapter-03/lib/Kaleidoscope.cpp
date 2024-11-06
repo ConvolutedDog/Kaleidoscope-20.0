@@ -1,13 +1,19 @@
 
 #include "Parser.h"
 
+#include "llvm/Support/raw_ostream.h" // llvm::errs
+
 //===----------------------------------------------------------------------===//
-// Top-Level parsing
+// Top-Level parsing and JIT Driver
 //===----------------------------------------------------------------------===//
 
 static void HandleDefinition() {
-  if (Parser::ParseDefinition()) {
-    fprintf(stderr, "Parsed a function definition.\n");
+  if (auto FnAST = Parser::ParseDefinition()) {
+    if (auto *FnIR = FnAST->codegen()) {
+      fprintf(stderr, "Read function definition:");
+      FnIR->print(llvm::errs());
+      fprintf(stderr, "\n");
+    }
   } else {
     // Skip token for error recovery.
     Parser::getNextToken();
@@ -15,8 +21,12 @@ static void HandleDefinition() {
 }
 
 static void HandleExtern() {
-  if (Parser::ParseExtern()) {
-    fprintf(stderr, "Parsed an extern\n");
+  if (auto ProtoAST = Parser::ParseExtern()) {
+    if (auto *FnIR = ProtoAST->codegen()) {
+      fprintf(stderr, "Read extern: ");
+      FnIR->print(llvm::errs());
+      fprintf(stderr, "\n");
+    }
   } else {
     // Skip token for error recovery.
     Parser::getNextToken();
@@ -25,8 +35,15 @@ static void HandleExtern() {
 
 static void HandleTopLevelExpression() {
   // Evaluate a top-level expression into an anonymous function.
-  if (Parser::ParseTopLevelExpr()) {
-    fprintf(stderr, "Parsed a top-level expr\n");
+  if (auto FnAST = Parser::ParseTopLevelExpr()) {
+    if (auto *FnIR = FnAST->codegen()) {
+      fprintf(stderr, "Read top-level expression:");
+      FnIR->print(llvm::errs());
+      fprintf(stderr, "\n");
+
+      // Remove the anonymous expression.
+      FnIR->eraseFromParent();
+    }
   } else {
     // Skip token for error recovery.
     Parser::getNextToken();
@@ -36,7 +53,6 @@ static void HandleTopLevelExpression() {
 /// top ::= definition | external | expression | ';'
 static void MainLoop() {
   while (true) {
-    // fprintf(stderr, "ready> ");
     switch (Parser::CurTok) {
     case Lexer::tok_eof:
       return;
@@ -63,17 +79,24 @@ static void MainLoop() {
 int main(int argv, char **argc) {
   // Install standard binary operators.
   Parser::initBinopPrecedence();
+  // Make the module, which holds all the code.
+  AST::InitializeModule();
 
   Lexer::file = fopen(argc[1], "r");
+  if (Lexer::file == NULL) {
+    std::cerr << "Open file " << argc[1] << " failed." << std::endl;
+    exit(1);
+  }
 
-  // Prime the first token.
-  // fprintf(stderr, "ready> ");
   Parser::getNextToken();
 
   // Run the main "interpreter loop" now.
   MainLoop();
 
   fclose(Lexer::file);
+
+  // Print out all of the generated code.
+  // AST::TheModule->print(llvm::errs(), nullptr);
 
   return 0;
 }

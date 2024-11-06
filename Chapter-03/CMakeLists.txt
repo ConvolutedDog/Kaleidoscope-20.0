@@ -25,13 +25,21 @@ endif()
 message(STATUS "Using CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
 message(STATUS "Using CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
 
+# Use `cmake .. -DBUILD_DEBUG` to debug.
+option(BUILD_DEBUG "Build in debug mode" OFF)
+
+if(BUILD_DEBUG)
+  add_compile_definitions(DEBUG)
+endif()
+
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+message(STATUS "Included LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS}")
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-file(GLOB LIB_SOURCES "lib/*.cpp")
+file(GLOB LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp")
 list(REMOVE_ITEM LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/lib/Kaleidoscope.cpp")
 add_library(KaleidoscopeLib STATIC ${LIB_SOURCES})
 
