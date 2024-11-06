@@ -1,4 +1,7 @@
 
+#ifndef LEXER_H
+#define LEXER_H
+
 #include <string> // c_str
 #include <cctype> // isspace, isdigit, isalpha, isascii
 #include <cstdlib> // strtod
@@ -88,3 +91,5 @@ static int getToken(FILE *file) {
   return ThisChar;
 }
 }; // namespace Lexer
+
+#endif // #define LEXER_H

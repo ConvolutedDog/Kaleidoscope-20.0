@@ -1,4 +1,7 @@
 
+#ifndef AST_H
+#define AST_H
+
 #include <string>
 #include <memory> // unique_ptr
 #include <vector>
@@ -80,3 +83,5 @@ private:
 };
 
 } // namespace AST
+
+#endif // #define AST_H

@@ -1,4 +1,7 @@
 
+#ifndef PARSER_H
+#define PARSER_H
+
 #include "Lexer.h"
 #include "AST.h"
 
@@ -235,3 +238,5 @@ static std::unique_ptr<AST::PrototypeAST> ParseExtern() {
 }
 
 } // namespace Parser
+
+#endif // #define PARSER_H
