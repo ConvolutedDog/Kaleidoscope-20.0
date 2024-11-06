@@ -58,7 +58,7 @@ private:
 /// PrototypeAST - This class represents the "prototype" for a function,
 /// which captures its name, and its argument names (thus implicitly the number
 /// of arguments the function takes).
-class PrototypeAST : public ExprAST {
+class PrototypeAST {
 public:
   PrototypeAST(const std::string &Name, std::vector<std::string> Args)
     : Name(Name), Args(Args) {}
@@ -69,7 +69,7 @@ private:
 };
 
 /// FunctionAST - This class represents a function definition itself.
-class FunctionAST : public ExprAST {
+class FunctionAST {
 public:
   FunctionAST(std::unique_ptr<PrototypeAST> Proto,
               std::unique_ptr<ExprAST> Body)
