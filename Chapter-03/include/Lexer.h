@@ -41,14 +41,11 @@ int getchar(FILE *file);
 
 static int getToken(FILE *file) {
   static int LastChar = ' ';
-// std::cout << "0" << " " << bool(isspace(LastChar)) << std::endl;
+
   // Skip any whitespace.
-  while (isspace(LastChar)) {
-    // std::cout << "#" << static_cast<char>(LastChar) << "#" << std::endl;
+  while (isspace(LastChar))
     LastChar = getchar(file);
-    // std::cout << "$" << static_cast<char>(LastChar) << "$" << std::endl;
-  }
-// std::cout << "1" << std::endl;
+
   if (isalpha(LastChar)) { // identifier: [a-zA-Z][a-zA-Z0-9]*
     IdentifierStr = LastChar;
     while (isalnum((LastChar = getchar(file))))
@@ -60,7 +57,7 @@ static int getToken(FILE *file) {
       return tok_extern;
     return tok_identifier;
   }
-// std::cout << "2" << std::endl;
+
   if (isdigit(LastChar) || LastChar == '.') { // Number: [0-9.]+
     std::string NumStr;
     do {
@@ -71,7 +68,7 @@ static int getToken(FILE *file) {
     NumVal = strtod(NumStr.c_str(), nullptr);
     return tok_number;
   }
-// std::cout << "3" << std::endl;
+
   if (LastChar == '#') {
     // Comment until end of line.
     do
@@ -81,11 +78,11 @@ static int getToken(FILE *file) {
     if (LastChar != EOF)
       return getToken(file);
   }
-// std::cout << "4" << std::endl;
+
   // Check for end of file.  Don't eat the EOF.
   if (LastChar == EOF)
     return tok_eof;
-// std::cout << "5" << std::endl;
+
   // Otherwise, just return the character as its ascii value.
   int ThisChar = LastChar;
   LastChar = getchar(file);
