@@ -19,10 +19,10 @@
 
 namespace AST {
 
-static std::unique_ptr<llvm::LLVMContext> TheContext;
-static std::unique_ptr<llvm::IRBuilder<>> Builder;
-static std::unique_ptr<llvm::Module> TheModule;
-static std::map<std::string, llvm::Value*> NamedValues;
+std::unique_ptr<llvm::LLVMContext>& getTheContext();
+std::unique_ptr<llvm::IRBuilder<>>& getBuilder();
+std::unique_ptr<llvm::Module>& getTheModule();
+std::map<std::string, llvm::Value*>& getNamedValues();
 
 void InitializeModule();
 

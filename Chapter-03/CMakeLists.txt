@@ -29,7 +29,7 @@ message(STATUS "Using CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
 option(BUILD_DEBUG "Build in debug mode" OFF)
 
 if(BUILD_DEBUG)
-  add_compile_definitions(DEBUG)
+  set(CMAKE_BUILD_TYPE Debug)
 endif()
 
 find_package(LLVM REQUIRED CONFIG)
@@ -47,7 +47,7 @@ target_include_directories(KaleidoscopeLib PUBLIC include ${LLVM_INCLUDE_DIRS})
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
-file(GLOB SOURCES "lib/Kaleidoscope.cpp")
+file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/lib/Kaleidoscope.cpp")
 add_executable(Kaleidoscope-Chpter-03 ${SOURCES})
 target_include_directories(Kaleidoscope-Chpter-03 PRIVATE include ${LLVM_INCLUDE_DIRS})
 target_link_libraries(Kaleidoscope-Chpter-03 KaleidoscopeLib)

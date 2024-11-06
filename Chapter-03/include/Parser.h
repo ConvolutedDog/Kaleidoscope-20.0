@@ -22,7 +22,7 @@ static int getNextToken() { return CurTok = Lexer::getToken(Lexer::file); }
 
 /// BinopPrecedence - This holds the precedence for each binary operator that is
 /// defined.
-static std::map<char, int> BinopPrecedence;
+std::map<char, int>& getBinopPrecedence();
 
 /// Install standard binary operators.
 void initBinopPrecedence();
@@ -33,7 +33,7 @@ static int GetTokPrecedence() {
     return -1;
 
   // Make sure it's a declared binop.
-  int TokPrec = BinopPrecedence[CurTok];
+  int TokPrec = getBinopPrecedence()[CurTok];
   if (TokPrec <= 0)
     return -1;
   return TokPrec;

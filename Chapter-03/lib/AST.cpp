@@ -13,7 +13,27 @@
 
 namespace AST {
 
+std::unique_ptr<llvm::LLVMContext>& getTheContext() {
+  static std::unique_ptr<llvm::LLVMContext> TheContext;
+  return TheContext;
+}
+std::unique_ptr<llvm::IRBuilder<>>& getBuilder() {
+  static std::unique_ptr<llvm::IRBuilder<>> Builder;
+  return Builder;
+}
+std::unique_ptr<llvm::Module>& getTheModule() {
+  static std::unique_ptr<llvm::Module> TheModule;
+  return TheModule;
+}
+std::map<std::string, llvm::Value*>& getNamedValues() {
+  static std::map<std::string, llvm::Value*> NamedValues;
+  return NamedValues;
+}
+
 void InitializeModule() {
+  auto& TheContext = getTheContext();
+  auto& Builder = getBuilder();
+  auto& TheModule = getTheModule();
   // Open a new context and module.
   TheContext = std::make_unique<llvm::LLVMContext>();
   TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
@@ -28,10 +48,12 @@ llvm::Value *LogErrorV(const char *Str) {
 }
 
 llvm::Value *NumberExprAST::codegen() {
+  auto& TheContext = getTheContext();
   return llvm::ConstantFP::get(*TheContext, llvm::APFloat(Value));
 }
 
 llvm::Value *VariableExprAST::codegen() {
+  auto& NamedValues = getNamedValues();
   llvm::Value *V = NamedValues[Name];
   if (!V)
     return LogErrorV("Unknown variable name");
@@ -44,6 +66,9 @@ llvm::Value *BinaryExprAST::codegen() {
   llvm::Value *R = RHS->codegen();
   if (!L || !R)
     return nullptr;
+
+  auto& Builder = getBuilder();
+  auto& TheContext = getTheContext();
 
   switch (Op) {
   case '+':
@@ -62,6 +87,8 @@ llvm::Value *BinaryExprAST::codegen() {
 }
 
 llvm::Value *CallExprAST::codegen() {
+  auto& TheModule = getTheModule();
+  auto& Builder = getBuilder();
   // Look up the name in the global module table.
   llvm::Function *CalleeF = TheModule->getFunction(Callee);
   if (!CalleeF)
@@ -82,6 +109,8 @@ llvm::Value *CallExprAST::codegen() {
 }
 
 llvm::Function *PrototypeAST::codegen() {
+  auto& TheContext = getTheContext();
+  auto& TheModule = getTheModule();
   // Make the function type:  double(double,double) etc.
   std::vector<llvm::Type *> Doubles(Args.size(), llvm::Type::getDoubleTy(*TheContext));
   llvm::FunctionType *FT =
@@ -99,6 +128,10 @@ llvm::Function *PrototypeAST::codegen() {
 }
 
 llvm::Function *FunctionAST::codegen() {
+  auto& TheContext = getTheContext();
+  auto& Builder = getBuilder();
+  auto& TheModule = getTheModule();
+  auto& NamedValues = getNamedValues();
   // First, check for an existing function from a previous 'extern' declaration.
   llvm::Function *TheFunction = TheModule->getFunction(Proto->getName());
 

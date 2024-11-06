@@ -10,7 +10,7 @@
 static void HandleDefinition() {
   if (auto FnAST = Parser::ParseDefinition()) {
     if (auto *FnIR = FnAST->codegen()) {
-      fprintf(stderr, "Read function definition:");
+      fprintf(stderr, "\033[0;32mRead function definition:\033[0m\n");
       FnIR->print(llvm::errs());
       fprintf(stderr, "\n");
     }
@@ -23,7 +23,7 @@ static void HandleDefinition() {
 static void HandleExtern() {
   if (auto ProtoAST = Parser::ParseExtern()) {
     if (auto *FnIR = ProtoAST->codegen()) {
-      fprintf(stderr, "Read extern: ");
+      fprintf(stderr, "\033[0;32mRead extern:\033[0m\n");
       FnIR->print(llvm::errs());
       fprintf(stderr, "\n");
     }
@@ -37,7 +37,7 @@ static void HandleTopLevelExpression() {
   // Evaluate a top-level expression into an anonymous function.
   if (auto FnAST = Parser::ParseTopLevelExpr()) {
     if (auto *FnIR = FnAST->codegen()) {
-      fprintf(stderr, "Read top-level expression:");
+      fprintf(stderr, "\033[0;32mRead top-level expression:\033[0m\n");
       FnIR->print(llvm::errs());
       fprintf(stderr, "\n");
 
@@ -96,7 +96,8 @@ int main(int argv, char **argc) {
   fclose(Lexer::file);
 
   // Print out all of the generated code.
-  // AST::TheModule->print(llvm::errs(), nullptr);
+  // TODO: the printed info is not completed.
+  // AST::getTheModule()->print(llvm::errs(), nullptr);
 
   return 0;
 }

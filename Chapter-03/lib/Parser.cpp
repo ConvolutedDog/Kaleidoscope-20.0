@@ -7,7 +7,14 @@
 
 namespace Parser {
 
+std::map<char, int>& getBinopPrecedence() {
+  // static variable, ensure that it is initialized once.
+  static std::map<char, int> BinopPrecedence;
+  return BinopPrecedence;
+}
+
 void initBinopPrecedence() {
+  auto& BinopPrecedence = getBinopPrecedence();
   // Install standard binary operators.
   // 1 is lowest precedence.
   BinopPrecedence['<'] = 10;
